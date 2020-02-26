@@ -1,8 +1,10 @@
-FROM php:7.4-fpm-stretch
+FROM php:7.4-fpm
 
-RUN apt-get update && apt-get install -y libgmp-dev libpng-dev libfreetype6-dev libjpeg62-turbo-dev unzip \
-    mysql-client libmagickwand-dev cron --no-install-recommends \
-    && pecl install imagick \
+RUN apt-get update 
+RUN apt-get install -y libgmp-dev libpng-dev libfreetype6-dev libjpeg62-turbo-dev unzip \
+    default-mysql-client libmagickwand-dev cron zlib1g-dev libzip-dev --no-install-recommends
+
+RUN pecl install imagick \
     && docker-php-ext-enable imagick \
     && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/local/include/ \
     && docker-php-ext-configure gmp \
@@ -10,7 +12,9 @@ RUN apt-get update && apt-get install -y libgmp-dev libpng-dev libfreetype6-dev 
     && docker-php-ext-install pdo_mysql \
     && docker-php-ext-install zip
 
-RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+# RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+#     && docker-php-ext-install gd
+RUN docker-php-ext-configure gd \
     && docker-php-ext-install gd
 RUN docker-php-ext-install calendar && docker-php-ext-configure calendar
 
