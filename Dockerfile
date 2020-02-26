@@ -2,7 +2,9 @@ FROM php:7.4-fpm
 
 RUN apt-get update 
 RUN apt-get install -y libgmp-dev libpng-dev libfreetype6-dev libjpeg62-turbo-dev unzip \
-    default-mysql-client libmagickwand-dev cron zlib1g-dev libzip-dev --no-install-recommends
+    default-mysql-client libmagickwand-dev cron zlib1g-dev libzip-dev \ 
+    curl nodejs \ 
+    --no-install-recommends
 
 RUN pecl install imagick \
     && docker-php-ext-enable imagick \
@@ -57,6 +59,15 @@ RUN touch /usr/local/etc/php/conf.d/espconfig.ini \
     && echo "upload_max_filesize = 50M;" >> /usr/local/etc/php/conf.d/espconfig.ini \
     && echo "max_execution_time = 300;" >> /usr/local/etc/php/conf.d/espconfig.ini
 
+
+# Install composer
+ENV COMPOSER_HOME /composer
+ENV PATH ./vendor/bin:/composer/vendor/bin:$PATH
+ENV COMPOSER_ALLOW_SUPERUSER 1
+RUN curl -s https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin/ --filename=composer
+
+# Install PHP_CodeSniffer
+RUN composer global require "squizlabs/php_codesniffer=*"
 
 # 
 # Permisos
