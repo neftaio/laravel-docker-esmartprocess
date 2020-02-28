@@ -3,7 +3,7 @@ FROM php:7.4-fpm
 RUN apt-get update 
 RUN apt-get install -y libgmp-dev libpng-dev libfreetype6-dev libjpeg62-turbo-dev unzip \
     default-mysql-client libmagickwand-dev cron zlib1g-dev libzip-dev \ 
-    curl \ 
+    curl  git \ 
     --no-install-recommends
 # Install NODE
 # RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash 
