@@ -1,27 +1,34 @@
-FROM php:7.4-fpm
+FROM php:8.0.2-fpm
 
 RUN apt-get update 
 RUN apt-get install -y libgmp-dev libpng-dev libfreetype6-dev libjpeg62-turbo-dev unzip \
     default-mysql-client libmagickwand-dev cron zlib1g-dev libzip-dev \ 
-    curl  git \ 
+    curl  git vim \ 
     --no-install-recommends
-# Install NODE
-# RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash 
-# RUN bash -c "source /root/.bashrc && nvm install node" 
-SHELL ["/bin/bash", "--login", "-c"]
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash 
-RUN nvm install 13.5.0 && nvm use 13.5.0 
-# Install exetencions
-RUN pecl install imagick \
-    && docker-php-ext-enable imagick \
-    && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/local/include/ \
-    && docker-php-ext-configure gmp \
-    && docker-php-ext-install gmp \
-    && docker-php-ext-install pdo_mysql \
-    && docker-php-ext-install zip
 
-# RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-#     && docker-php-ext-install gd
+#
+# Install NODE
+#
+SHELL ["/bin/bash", "--login", "-c"]
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
+RUN nvm install v14.16.0 && nvm use v14.16.0
+
+#
+# Install exetencions
+#
+RUN mkdir -p /usr/src/php/ext/imagick; \
+curl -fsSL https://github.com/Imagick/imagick/archive/06116aa24b76edaf6b1693198f79e6c295eda8a9.tar.gz | tar xvz -C "/usr/src/php/ext/imagick" --strip 1; \
+docker-php-ext-install imagick;
+
+RUN ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/local/include/
+RUN docker-php-ext-configure gmp
+RUN docker-php-ext-install gmp
+RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-install zip
+
+RUN pecl install -f xdebug \
+    && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini;
+
 RUN docker-php-ext-configure gd \
     && docker-php-ext-install gd
 RUN docker-php-ext-install calendar && docker-php-ext-configure calendar
